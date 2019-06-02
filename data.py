@@ -1,12 +1,14 @@
 import copy
 import functools
+import json
 import os
+import pickle
+from glob import glob
+from typing import Tuple
 
 import torch
 import torch.utils.data as data
 from PIL import Image
-# import accimage
-import json
 
 
 def pil_loader(path):
@@ -137,3 +139,24 @@ class Video(data.Dataset):
 
     def __len__(self):
         return len(self.data)
+
+
+class AudioVideo(data.Dataset):
+    def __init__(self, path: str):
+        self.path = path
+        self.data = []
+
+        for file_path in glob(f'{path}/*.pkl'):
+            audios, images, label = pickle.load(open(file_path, 'rb'))
+            self.data += [(audios[i], images[i], label) for i in range(len(audios))]
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, int]:
+        # return (
+        #     torch.rand((1, 96, 64)),
+        #     torch.rand((3, 224, 224)),
+        #     np.random.choice([0, 1])
+        # )
+        return self.data[idx]

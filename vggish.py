@@ -1,5 +1,6 @@
 from typing import Tuple
 
+import conv
 import torch.nn as nn
 from torch import hub
 
@@ -46,7 +47,7 @@ Output:  128 Embedding
 
 
 class VGGish(nn.Module):
-    def __init__(self):
+    def __init__(self, feature_extract: bool):
         super(VGGish, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(1, VGGishParams.NUM_BANDS, 3, 1, 1),
@@ -74,6 +75,8 @@ class VGGish(nn.Module):
             nn.Linear(4096, VGGishParams.EMBEDDING_SIZE),
             nn.ReLU(inplace=True),
         )
+        conv.set_parameter_requires_grad(self.features, feature_extract)
+        conv.set_parameter_requires_grad(self.embeddings, feature_extract)
 
     def forward(self, x):
         x = self.features(x)
@@ -82,11 +85,11 @@ class VGGish(nn.Module):
         return x
 
 
-def vggish() -> Tuple[VGGish, int]:
+def vggish(feature_extract: bool) -> Tuple[VGGish, int]:
     """
     VGGish is a PyTorch implementation of Tensorflow's VGGish architecture used to create embeddings
     for Audioset. It produces a 128-d embedding of a 96ms slice of audio. Always comes pretrained.
     """
-    model = VGGish()
+    model = VGGish(feature_extract)
     model.load_state_dict(hub.load_state_dict_from_url(VGGISH_WEIGHTS), strict=True)
     return model, VGGishParams.EMBEDDING_SIZE

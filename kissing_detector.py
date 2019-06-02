@@ -9,7 +9,7 @@ class KissingDetector(nn.Module):
         super(KissingDetector, self).__init__()
         conv, conv_input_size, conv_output_size = convnet_init(model_name, num_classes, feature_extract,
                                                                use_pretrained=use_pretrained)
-        vggish_model, vggish_output_size = vggish.vggish()
+        vggish_model, vggish_output_size = vggish.vggish(feature_extract)
         self.conv_input_size = conv_input_size
         self.conv = conv
         self.vggish = vggish_model
