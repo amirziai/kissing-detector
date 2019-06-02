@@ -2,3 +2,8 @@ torch
 torchvision
 resampy
 soundfile
+PIL
+accimage
+numpy
+moviepy
+cv2
