@@ -21,7 +21,7 @@ experiments = {
     'num_epochs': {10},
     'feature_extract': {True, False},
     'batch_size': {64},
-    'lr': {1e-3, 1e-2},
+    'lr': {1e-3, 1e-2, 5e-4},
     'use_vggish': {False, True},
     'momentum': {0.9, 0.95}
 }
