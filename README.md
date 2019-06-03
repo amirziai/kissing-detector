@@ -49,7 +49,6 @@ builder.build_dataset()
 - Failure examples
 
 ## TODO
-- Segmentor
 - Qual
     - Saliency map
     - class viz
