@@ -88,7 +88,17 @@ class BuildDataset:
             transforms.ToPILImage()])(img)
 
     @staticmethod
-    def one_video_extract_audio_and_stills(path_video: str,
+    def transformer(img_size: int):
+        return transforms.Compose([
+            transforms.RandomResizedCrop(img_size),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(params.mean, params.std)
+        ])
+
+    @classmethod
+    def one_video_extract_audio_and_stills(cls,
+                                           path_video: str,
                                            img_size: int = 224) -> Tuple[List[torch.Tensor],
                                                                          List[torch.Tensor]]:
         # return a list of image(s), audio tensors
@@ -96,12 +106,7 @@ class BuildDataset:
         frame_rate = cap.get(5)
         images = []
 
-        transformer = transforms.Compose([
-            transforms.RandomResizedCrop(img_size),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize(params.mean, params.std)
-        ])
+        transformer = cls.transformer(img_size)
 
         # process the image
         while cap.isOpened():
@@ -125,7 +130,7 @@ class BuildDataset:
 
         tmp_audio_file = 'tmp.wav'
         VideoFileClip(path_video).audio.write_audiofile(tmp_audio_file)
-        # TODO: fix if n_augment > 1 by duplicating each sample n_augment times
+        # fix if n_augment > 1 by duplicating each sample n_augment times
         audio = vggish_input.wavfile_to_examples(tmp_audio_file)
         # audio = audio[:, None, :, :]  # add dummy dimension for "channel"
         # audio = torch.from_numpy(audio).float()  # Convert input example to float
