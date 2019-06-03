@@ -49,7 +49,10 @@ builder.build_dataset()
 - Failure examples
 
 ## TODO
-- Define experiments
-- Saliency map, class viz
-- 
-- ...
+- Segmentor
+- Qual
+    - Saliency map
+    - class viz
+    - Error examples
+    - Audio?
+- 3DC

@@ -7,11 +7,12 @@ from typing import List, Tuple
 import cv2
 import numpy as np
 import torch
+from PIL import Image
 from moviepy.editor import VideoFileClip
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from torchvision import transforms
-from PIL import Image
 
+import params
 import vggish_input
 
 VGGISH_FRAME_RATE = 0.96
@@ -47,7 +48,7 @@ class BuildDataset:
                  base_path: str,
                  videos_and_labels: List[Tuple[str, str]],
                  output_path: str,
-                 n_augment: int=1,
+                 n_augment: int = 1,
                  test_size: float = 1 / 3):
         assert 0 < test_size < 1
         self.videos_and_labels = videos_and_labels
@@ -57,15 +58,6 @@ class BuildDataset:
         self.n_augment = n_augment
 
         self.sets = ['train', 'val']
-        self.img_size = 224
-
-        self.transformer = transforms.Compose([
-            transforms.RandomResizedCrop(self.img_size),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            # TODO: wtf?
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])
 
     def _get_set(self):
         return np.random.choice(self.sets, p=[1 - self.test_size, self.test_size])
@@ -88,12 +80,28 @@ class BuildDataset:
             target = f"{self.output_path}/{set_}/{label}_{name}.pkl"
             pickle.dump((audio, images, label), open(target, 'wb'))
 
-    def one_video_extract_audio_and_stills(self, path_video: str) -> Tuple[List[torch.Tensor],
-                                                                     List[torch.Tensor]]:
+    @staticmethod
+    def transform_reverse(img: torch.Tensor) -> Image:
+        return transforms.Compose([
+            transforms.Normalize(mean=[0, 0, 0], std=(1.0 / params.std).tolist()),
+            transforms.Normalize(mean=(-params.mean).tolist(), std=[1, 1, 1]),
+            transforms.ToPILImage()])(img)
+
+    @staticmethod
+    def one_video_extract_audio_and_stills(path_video: str,
+                                           img_size: int = 224) -> Tuple[List[torch.Tensor],
+                                                                         List[torch.Tensor]]:
         # return a list of image(s), audio tensors
         cap = cv2.VideoCapture(path_video)
         frame_rate = cap.get(5)
         images = []
+
+        transformer = transforms.Compose([
+            transforms.RandomResizedCrop(img_size),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(params.mean, params.std)
+        ])
 
         # process the image
         while cap.isOpened():
@@ -106,7 +114,8 @@ class BuildDataset:
 
             if frame_id % math.floor(frame_rate * VGGISH_FRAME_RATE) == 0:
                 frame_pil = Image.fromarray(frame, mode='RGB')
-                images += [self.transformer(frame_pil) for _ in range(self.n_augment)]
+                images.append(transformer(frame_pil))
+                # images += [transformer(frame_pil) for _ in range(self.n_augment)]
 
         cap.release()
 
@@ -123,6 +132,7 @@ class BuildDataset:
 
         min_sizes = min(audio.shape[0], len(images))
         audio = [torch.from_numpy(audio[idx][None, :, :]).float() for idx in range(min_sizes)]
+        images = images[:min_sizes]
         # images = [torch.from_numpy(img).permute((2, 0, 1)) for img in images[:min_sizes]]
 
         return audio, images

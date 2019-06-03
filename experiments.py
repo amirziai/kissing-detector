@@ -41,6 +41,7 @@ class ExperimentRunner:
 
         if self._experiment_result_exists(uuid):
             log('Loading experiment results from cache')
+            log(uuid)
             experiment_results = unpickle(self._file_path_experiment_results(uuid))
         else:
             experiment_results = train_kd(**param_set)
