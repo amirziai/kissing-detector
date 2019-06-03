@@ -2,8 +2,7 @@ torch
 torchvision
 resampy
 soundfile
-PIL
-accimage
+Pillow
 numpy
 moviepy
-cv2
+opencv-python

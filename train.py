@@ -1,6 +1,6 @@
 import copy
 import time
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import torch
 import torch.optim as optim
@@ -26,16 +26,16 @@ def _get_params_to_update(model: nn.Module,
 
 
 def train_kd(data_path_base: str,
-             model_name: str,
+             conv_model_name: Optional[str],
              num_epochs: int,
              feature_extract: bool,
              batch_size: int,
              num_workers: int = 4,
              shuffle: bool = True,
              lr: float = 0.001,
-             momentum: float = 0.9) -> Tuple[nn.Module, List[torch.Tensor]]:
+             momentum: float = 0.9) -> Tuple[nn.Module, List[float], List[float]]:
     num_classes = 2
-    kd = KissingDetector(model_name, num_classes, feature_extract)
+    kd = KissingDetector(conv_model_name, num_classes, feature_extract)
     params_to_update = _get_params_to_update(kd, feature_extract)
 
     datasets = {set_: AudioVideo(f'{data_path_base}/{set_}') for set_ in ['train', 'val']}
@@ -48,16 +48,16 @@ def train_kd(data_path_base: str,
     # Setup the loss fxn
     criterion = nn.CrossEntropyLoss()
 
-    model_ft, hist = train_model(kd,
-                                 dataloaders_dict, criterion, optimizer_ft, num_epochs=num_epochs,
-                                 is_inception=(model_name == "inception"))
-    return model_ft, hist
+    return train_model(kd,
+                       dataloaders_dict, criterion, optimizer_ft, num_epochs=num_epochs,
+                       is_inception=(conv_model_name == "inception"))
 
 
 def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_inception=False):
     since = time.time()
 
     val_acc_history = []
+    val_f1_history = []
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
@@ -142,15 +142,16 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
                 best_f1 = epoch_f1
                 best_model_wts = copy.deepcopy(model.state_dict())
             if phase == 'val':
-                val_acc_history.append(epoch_acc)
+                val_acc_history.append(float(epoch_acc))
+                val_f1_history.append(float(epoch_f1))
 
         print()
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    print('Best val F1 : {:4f}'.format(best_f1))
-    print('Best val Acc: {:4f}'.format(best_acc))
+    print('Best val F1  : {:4f}'.format(best_f1))
+    print('Best val Acc : {:4f}'.format(best_acc))
 
     # load best model weights
     model.load_state_dict(best_model_wts)
-    return model, val_acc_history
+    return model, val_acc_history, val_f1_history

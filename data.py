@@ -154,6 +154,7 @@ class AudioVideo(data.Dataset):
         return len(self.data)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, int]:
+        # output format:
         # return (
         #     torch.rand((1, 96, 64)),
         #     torch.rand((3, 224, 224)),
