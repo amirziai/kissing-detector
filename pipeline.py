@@ -9,6 +9,8 @@ import numpy as np
 import torch
 from moviepy.editor import VideoFileClip
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
+from torchvision import transforms
+from PIL import Image
 
 import vggish_input
 
@@ -45,14 +47,25 @@ class BuildDataset:
                  base_path: str,
                  videos_and_labels: List[Tuple[str, str]],
                  output_path: str,
+                 n_augment: int=1,
                  test_size: float = 1 / 3):
         assert 0 < test_size < 1
         self.videos_and_labels = videos_and_labels
         self.test_size = test_size
         self.output_path = output_path
         self.base_path = base_path
+        self.n_augment = n_augment
 
         self.sets = ['train', 'val']
+        self.img_size = 224
+
+        self.transformer = transforms.Compose([
+            transforms.RandomResizedCrop(self.img_size),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            # TODO: wtf?
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
 
     def _get_set(self):
         return np.random.choice(self.sets, p=[1 - self.test_size, self.test_size])
@@ -75,8 +88,7 @@ class BuildDataset:
             target = f"{self.output_path}/{set_}/{label}_{name}.pkl"
             pickle.dump((audio, images, label), open(target, 'wb'))
 
-    @staticmethod
-    def one_video_extract_audio_and_stills(path_video: str) -> Tuple[List[torch.Tensor],
+    def one_video_extract_audio_and_stills(self, path_video: str) -> Tuple[List[torch.Tensor],
                                                                      List[torch.Tensor]]:
         # return a list of image(s), audio tensors
         cap = cv2.VideoCapture(path_video)
@@ -93,7 +105,8 @@ class BuildDataset:
                 break
 
             if frame_id % math.floor(frame_rate * VGGISH_FRAME_RATE) == 0:
-                images.append(frame)
+                frame_pil = Image.fromarray(frame, mode='RGB')
+                images += [self.transformer(frame_pil) for _ in range(self.n_augment)]
 
         cap.release()
 
@@ -103,12 +116,13 @@ class BuildDataset:
 
         tmp_audio_file = 'tmp.wav'
         VideoFileClip(path_video).audio.write_audiofile(tmp_audio_file)
+        # TODO: fix if n_augment > 1 by duplicating each sample n_augment times
         audio = vggish_input.wavfile_to_examples(tmp_audio_file)
         # audio = audio[:, None, :, :]  # add dummy dimension for "channel"
         # audio = torch.from_numpy(audio).float()  # Convert input example to float
 
         min_sizes = min(audio.shape[0], len(images))
         audio = [torch.from_numpy(audio[idx][None, :, :]).float() for idx in range(min_sizes)]
-        images = [torch.from_numpy(img).permute((2, 1, 0)) for img in images[:min_sizes]]
+        # images = [torch.from_numpy(img).permute((2, 0, 1)) for img in images[:min_sizes]]
 
         return audio, images
