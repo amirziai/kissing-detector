@@ -17,7 +17,6 @@ def convnet_init(model_name: str,
     #   variables is model specific.
     model_ft = None
     input_size = 0
-    output_size = 0
 
     if model_name == "resnet":
         """ Resnet18
@@ -57,7 +56,7 @@ def convnet_init(model_name: str,
         # TODO: this is my attempt to remove the last FC layer, doesn't seem to work for SqueezeNet
         # model_ft.classifier = nn.Identity()
         # model_ft.classifier[1] = nn.Conv2d(512, num_classes, kernel_size=(1, 1), stride=(1, 1))
-        model_ft.classifier[1] = nn.Identity()
+        model_ft.classifier = nn.Identity()
         # model_ft.num_classes = num_classes
         input_size = 224
 

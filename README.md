@@ -50,4 +50,6 @@ builder.build_dataset()
 
 ## TODO
 - Define experiments
+- Saliency map, class viz
+- 
 - ...
