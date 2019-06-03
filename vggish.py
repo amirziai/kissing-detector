@@ -1,11 +1,13 @@
 from typing import Tuple
 
-import conv
 import torch.nn as nn
 from torch import hub
 
+import conv
+
 VGGISH_WEIGHTS = (
-    "https://users.cs.cf.ac.uk/taylorh23/pytorch/models/vggish-cbfe8f1c.pth"
+    # "https://users.cs.cf.ac.uk/taylorh23/pytorch/models/vggish-cbfe8f1c.pth"
+    'https://users.cs.cf.ac.uk/taylorh23/pytorch/models/vggish-918c2d05.pth'
 )
 PCA_PARAMS = (
     "https://users.cs.cf.ac.uk/taylorh23/pytorch/models/vggish_pca_params-4d878af3.npz"
