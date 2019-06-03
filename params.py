@@ -4,7 +4,7 @@ n_jobs = 1
 data_path_base = '/Users/aziai/Downloads/vtest_new2'
 
 # test end-to-end
-experiment1_test = {
+experiment_test = {
     'data_path_base': {data_path_base},
     'conv_model_name': {'resnet'},
     'num_epochs': {10},
@@ -15,9 +15,9 @@ experiment1_test = {
     'momentum': {0.9}
 }
 
-experiment1 = {
+experiments = {
     'data_path_base': {data_path_base},
-    'conv_model_name': {'resnet', 'vgg'},
+    'conv_model_name': {'resnet', None},  # vgg
     'num_epochs': {10},
     'feature_extract': {True, False},
     'batch_size': {64},

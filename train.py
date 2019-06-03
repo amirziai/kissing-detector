@@ -9,7 +9,7 @@ from torch import nn
 from data import AudioVideo
 from kissing_detector import KissingDetector
 
-ExperimentResults = Tuple[nn.Module, List[float], List[float]]
+ExperimentResults = Tuple[Optional[nn.Module], List[float], List[float]]
 
 
 def _get_params_to_update(model: nn.Module,
@@ -38,7 +38,12 @@ def train_kd(data_path_base: str,
              lr: float = 0.001,
              momentum: float = 0.9) -> ExperimentResults:
     num_classes = 2
-    kd = KissingDetector(conv_model_name, num_classes, feature_extract, use_vggish=use_vggish)
+    try:
+        kd = KissingDetector(conv_model_name, num_classes, feature_extract, use_vggish=use_vggish)
+    except ValueError:
+        # if the combination is not valid
+        return None, [-1.0], [-1.0]
+
     params_to_update = _get_params_to_update(kd, feature_extract)
 
     datasets = {set_: AudioVideo(f'{data_path_base}/{set_}') for set_ in ['train', 'val']}
