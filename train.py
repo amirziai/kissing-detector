@@ -9,6 +9,8 @@ from torch import nn
 from data import AudioVideo
 from kissing_detector import KissingDetector
 
+ExperimentResults = Tuple[nn.Module, List[float], List[float]]
+
 
 def _get_params_to_update(model: nn.Module,
                           feature_extract: bool) -> List[nn.parameter.Parameter]:
@@ -30,12 +32,13 @@ def train_kd(data_path_base: str,
              num_epochs: int,
              feature_extract: bool,
              batch_size: int,
+             use_vggish: bool = True,
              num_workers: int = 4,
              shuffle: bool = True,
              lr: float = 0.001,
-             momentum: float = 0.9) -> Tuple[nn.Module, List[float], List[float]]:
+             momentum: float = 0.9) -> ExperimentResults:
     num_classes = 2
-    kd = KissingDetector(conv_model_name, num_classes, feature_extract)
+    kd = KissingDetector(conv_model_name, num_classes, feature_extract, use_vggish=use_vggish)
     params_to_update = _get_params_to_update(kd, feature_extract)
 
     datasets = {set_: AudioVideo(f'{data_path_base}/{set_}') for set_ in ['train', 'val']}

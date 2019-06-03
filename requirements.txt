@@ -6,3 +6,5 @@ Pillow
 numpy
 moviepy
 opencv-python
+joblib
+pandas

@@ -39,9 +39,9 @@ class KissingDetector(nn.Module):
         a = self.vggish(audio) if self.vggish else None
         c = self.conv(image) if self.conv else None
 
-        if a and c:
+        if a is not None and c is not None:
             combined = torch.cat((c.view(c.size(0), -1), a.view(a.size(0), -1)), dim=1)
         else:
-            combined = a if a else c
+            combined = a if a is not None else c
 
         return self.combined(combined)
