@@ -64,7 +64,10 @@ s.visualize_segments('path/to/file.mp4')
 
 See examples in [examples/detector.ipynb](examples/detector.ipynb).
 
-## Heavily used the following resources:
+## References
 - [Video Classification Using 3D ResNet](https://github.com/kenshohara/video-classification-3d-cnn-pytorch)
+- [3D ResNets for Action Recognition (CVPR 2018)](https://github.com/kenshohara/3D-ResNets-PyTorch/)
 - [AudioSet](https://research.google.com/audioset/download.html)
+- [TensorFlow AudioSet](https://github.com/tensorflow/models/tree/master/research/audioset)
 - [CS231N Saliency maps and class viz PyTorch code](http://cs231n.github.io/assignments2019/assignment3/)
+- [Torch VGGish](https://github.com/harritaylor/torchvggish)

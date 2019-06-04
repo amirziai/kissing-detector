@@ -13,7 +13,7 @@ vggish_frame_rate = 0.96
 experiment_test = {
     'data_path_base': {data_path_base},
     'conv_model_name': {'resnet'},
-    'num_epochs': {10},
+    'num_epochs': {20},
     'feature_extract': {True},
     'batch_size': {64},
     'lr': {0.001},

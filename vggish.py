@@ -1,3 +1,4 @@
+# adapted from https://github.com/harritaylor/torchvggish
 from typing import Tuple
 
 import torch.nn as nn

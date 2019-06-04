@@ -58,7 +58,8 @@ def train_kd(data_path_base: str,
                                                        batch_size=batch_size,
                                                        shuffle=shuffle, num_workers=num_workers)
                         for x in ['train', 'val']}
-    optimizer_ft = optim.SGD(params_to_update, lr=lr, momentum=momentum)
+    # optimizer_ft = optim.SGD(params_to_update, lr=lr, momentum=momentum)
+    optimizer_ft = optim.Adam(params_to_update, lr=lr)
 
     # Setup the loss fxn
     criterion = nn.CrossEntropyLoss()
