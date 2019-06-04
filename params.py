@@ -23,11 +23,11 @@ experiment_test = {
 experiment_test_3d = {
     'data_path_base': {data_path_base},
     'conv_model_name': {'resnet'},
-    'num_epochs': {10},
-    'feature_extract': {True},
+    'num_epochs': {15},
+    'feature_extract': {True, False},
     'batch_size': {64},
     'lr': {0.001},
-    'use_vggish': {True},
+    'use_vggish': {True, False},
     'momentum': {0.9},
     'use_3d': {True}
 }
