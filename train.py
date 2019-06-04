@@ -1,3 +1,4 @@
+# adapted from PyTorch tutorials
 import copy
 import time
 from typing import List, Tuple, Optional

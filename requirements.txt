@@ -10,3 +10,4 @@ joblib
 pandas
 matplotlib
 pytube
+scipy

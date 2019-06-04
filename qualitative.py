@@ -1,11 +1,15 @@
+# adapted from http://cs231n.github.io/assignments2019/assignment3/
+import random
 from typing import Dict, List
 
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 from PIL import Image
+from scipy.ndimage.filters import gaussian_filter1d
 from torch import nn
-import numpy as np
 
+import params
 from pipeline import BuildDataset
 
 
@@ -117,7 +121,15 @@ class QualitativeAnalysis:
             X = torch.cat([bottom, top], dim=2)
         return X
 
-    def create_class_visualization(target_y, model, dtype, **kwargs):
+    @staticmethod
+    def _blur_image(X, sigma=1):
+        X_np = X.cpu().clone().numpy()
+        X_np = gaussian_filter1d(X_np, sigma, axis=2)
+        X_np = gaussian_filter1d(X_np, sigma, axis=3)
+        X.copy_(torch.Tensor(X_np).type_as(X))
+        return X
+
+    def create_class_visualization(self, target_y, model, dtype, a, **kwargs):
         """
         Generate an image to maximize the score of target_y under a pretrained model.
 
@@ -134,6 +146,10 @@ class QualitativeAnalysis:
         - max_jitter: How much to gjitter the image as an implicit regularizer
         - show_every: How often to show the intermediate result
         """
+
+        def deprocess(x):
+            return BuildDataset.transform_reverse(x.squeeze(0))
+
         model.type(dtype)
         l2_reg = kwargs.pop('l2_reg', 1e-3)
         learning_rate = kwargs.pop('learning_rate', 25)
@@ -148,44 +164,30 @@ class QualitativeAnalysis:
         for t in range(num_iterations):
             # Randomly jitter the image a bit; this gives slightly nicer results
             ox, oy = random.randint(0, max_jitter), random.randint(0, max_jitter)
-            img.data.copy_(jitter(img.data, ox, oy))
+            img.data.copy_(self.jitter(img.data, ox, oy))
 
-            ########################################################################
-            # TODO: Use the model to compute the gradient of the score for the     #
-            # class target_y with respect to the pixels of the image, and make a   #
-            # gradient step on the image using the learning rate. Don't forget the #
-            # L2 regularization term!                                              #
-            # Be very careful about the signs of elements in your code.            #
-            ########################################################################
-            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            target = model(img)[0, target_y]
+            target = model(a, img)[0, target_y]
             target.backward()
             g = img.grad.data
             g -= 2 * l2_reg * img.data
             img.data += learning_rate * (g / g.norm())
             img.grad.zero_()
 
-            # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            ########################################################################
-            #                             END OF YOUR CODE                         #
-            ########################################################################
-
             # Undo the random jitter
-            img.data.copy_(jitter(img.data, -ox, -oy))
+            img.data.copy_(self.jitter(img.data, -ox, -oy))
 
             # As regularizer, clamp and periodically blur the image
             for c in range(3):
-                lo = float(-SQUEEZENET_MEAN[c] / SQUEEZENET_STD[c])
-                hi = float((1.0 - SQUEEZENET_MEAN[c]) / SQUEEZENET_STD[c])
+                lo = float(-params.mean[c] / params.std[c])
+                hi = float((1.0 - params.mean[c]) / params.std[c])
                 img.data[:, c].clamp_(min=lo, max=hi)
             if t % blur_every == 0:
-                blur_image(img.data, sigma=0.5)
+                self._blur_image(img.data, sigma=0.5)
 
             # Periodically show the image
             if t == 0 or (t + 1) % show_every == 0 or t == num_iterations - 1:
                 plt.imshow(deprocess(img.data.clone().cpu()))
-                class_name = class_names[target_y]
+                class_name = self.class_names[target_y]
                 plt.title('%s\nIteration %d / %d' % (class_name, t + 1, num_iterations))
                 plt.gcf().set_size_inches(4, 4)
                 plt.axis('off')

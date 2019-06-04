@@ -70,5 +70,5 @@ class ExperimentRunner:
 
 
 if __name__ == '__main__':
-    experiment1 = ExperimentRunner(params.experiment1_test, n_jobs=params.n_jobs)
+    experiment1 = ExperimentRunner(params.experiments, n_jobs=params.n_jobs)
     experiment1.run()

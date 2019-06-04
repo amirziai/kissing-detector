@@ -3,7 +3,16 @@ Detect kissing scenes in a movie using both audio and video features.
 
 Project for [Stanford CS231N](http://cs231n.stanford.edu)
 
+## Running the code
+Use Python 3.6+
+```bash
+python3 experiments.py
+```
+
+this will run the experiments in `params.py` specified by the `experiments` dictionary.
+
 ## Build dataset
+The following will build the dataset for training. You need to provide path to video segments.
 ```python
 from pipeline import BuildDataset
 
@@ -31,27 +40,6 @@ builder = BuildDataset(base_path='path/to/movies',
 builder.build_dataset()
 ```
 
-### Data loader
-
-
-## Explorations:
-- ConvNet, VGGish, or both
-- ConvNet architectures: ResNet, VGG, AlexNet, SqueezeNet, DenseNet
-- With and without pre-training
-- 
-- (3DC) 
-
-## Diagnostics
-- Saliency maps
-- Class viz
-- Confusion matrices
-- Detected segments
-- Failure examples
-
-## TODO
-- Qual
-    - Saliency map
-    - class viz
-    - Error examples
-    - Audio?
-- 3DC
+## Heavily used the following resources:
+- [Video Classification Using 3D ResNet](https://github.com/kenshohara/video-classification-3d-cnn-pytorch)
+- [CS231N assignment 3](http://cs231n.github.io/assignments2019/assignment3/)

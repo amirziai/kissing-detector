@@ -34,7 +34,7 @@ experiment_test_3d = {
 
 experiments = {
     'data_path_base': {data_path_base},
-    'conv_model_name': {'resnet', None},  # vgg
+    'conv_model_name': {'resnet', None, 'vgg', 'densenet', 'squeezenet'},
     'num_epochs': {10},
     'feature_extract': {True, False},
     'batch_size': {64},
