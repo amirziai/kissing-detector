@@ -65,7 +65,7 @@ class KissingDetector3DConv(nn.Module):
             num_classes=num_classes,
             shortcut_type='B',
             sample_size=224,
-            sample_duration=10
+            sample_duration=16
         )
         set_parameter_requires_grad(conv, feature_extract)
         conv.fc = nn.Identity()

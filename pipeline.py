@@ -9,38 +9,11 @@ import numpy as np
 import torch
 from PIL import Image
 from moviepy.editor import VideoFileClip
-from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
+
 from torchvision import transforms
 
 import params
 import vggish_input
-
-VGGISH_FRAME_RATE = 0.96
-
-
-def slice_clips(segments, root, fps=2):
-    for path, classes in segments.items():
-
-        for cls, ts in classes.items():
-            for i, (t1, t2) in enumerate(ts):
-                set_ = np.random.choice(['train', 'val'], p=[2 / 3, 1 / 3])
-                # get all the still frames
-                file_name, ext = path.split('.')
-                target = f"{root}{file_name}_{cls}_{i + 1}.{ext}"
-                print(f'target: {target}')
-                ffmpeg_extract_subclip(f'{root}{path}', t1, t2, targetname=target)
-                vidcap = cv2.VideoCapture(target)
-                vidcap.set(cv2.CAP_PROP_FPS, fps)
-                print(cv2.CAP_PROP_FPS)
-                success, image = vidcap.read()
-                count = 0
-                while success:
-                    frame_path = f'{root}casino/{set_}/{cls}/{file_name}_{i}_{count + 1}.jpg'
-                    # print(frame_path)
-                    cv2.imwrite(frame_path, image)  # save frame as JPEG file
-                    success, image = vidcap.read()
-                    # print('Read a new frame: ', success)
-                    count += 1
 
 
 class BuildDataset:
@@ -117,7 +90,7 @@ class BuildDataset:
                 print('Something went wrong!')
                 break
 
-            if frame_id % math.floor(frame_rate * VGGISH_FRAME_RATE) == 0:
+            if frame_id % math.floor(frame_rate * params.vggish_frame_rate) == 0:
                 frame_pil = Image.fromarray(frame, mode='RGB')
                 images.append(transformer(frame_pil))
                 # images += [transformer(frame_pil) for _ in range(self.n_augment)]

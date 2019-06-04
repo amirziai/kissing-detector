@@ -9,6 +9,9 @@ Use Python 3.6+
 python3 experiments.py
 ```
 
+## Requirements
+This is a PyTorch project. Look at `requirements.txt` for more details. 
+
 this will run the experiments in `params.py` specified by the `experiments` dictionary.
 
 ## Build dataset
@@ -40,6 +43,28 @@ builder = BuildDataset(base_path='path/to/movies',
 builder.build_dataset()
 ```
 
+## Detect kissing segments in a given video
+```python
+from segmentor import Segmentor
+import utils
+
+# download model.pkl from https://drive.google.com/file/d/1RlvvdInTXtJikGv_ZbHcKoblCypN1Z0A/view?usp=sharing
+# or train your own
+model = utils.unpickle('model.pkl')  # pickled PyTorch model 
+s = Segmentor(model, min_frames=10, threshold=0.7)
+
+# For YouTube clip Hot Summer Nights - Kiss Scene (Maika Monroe and Timothee Chalamet)
+# at https://www.youtube.com/watch?v=GG5HmLQ_Fx0
+# v=XXX is the YouTube ID, pass that here 
+s.visualize_segments_youtube('GG5HmLQ_Fx0')
+
+# alternatively you can provide a path to a local mp4 file
+s.visualize_segments('path/to/file.mp4')
+```
+
+See examples in [examples/detector.ipynb](examples/detector.ipynb).
+
 ## Heavily used the following resources:
 - [Video Classification Using 3D ResNet](https://github.com/kenshohara/video-classification-3d-cnn-pytorch)
-- [CS231N assignment 3](http://cs231n.github.io/assignments2019/assignment3/)
+- [AudioSet](https://research.google.com/audioset/download.html)
+- [CS231N Saliency maps and class viz PyTorch code](http://cs231n.github.io/assignments2019/assignment3/)

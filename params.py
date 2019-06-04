@@ -7,6 +7,7 @@ data_path_base = 'vtest_new2'
 
 mean = np.array([0.485, 0.456, 0.406])
 std = np.array([0.229, 0.224, 0.225])
+vggish_frame_rate = 0.96
 
 # test end-to-end
 experiment_test = {
