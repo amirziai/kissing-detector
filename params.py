@@ -16,8 +16,20 @@ experiment_test = {
     'feature_extract': {True},
     'batch_size': {64},
     'lr': {0.001},
-    'use_vggish': {False},
+    'use_vggish': {True},
     'momentum': {0.9}
+}
+
+experiment_test_3d = {
+    'data_path_base': {data_path_base},
+    'conv_model_name': {'resnet'},
+    'num_epochs': {10},
+    'feature_extract': {True},
+    'batch_size': {64},
+    'lr': {0.001},
+    'use_vggish': {True},
+    'momentum': {0.9},
+    'use_3d': {True}
 }
 
 experiments = {

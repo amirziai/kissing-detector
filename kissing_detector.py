@@ -4,7 +4,7 @@ import torch
 from torch import nn
 
 import vggish
-from conv import convnet_init
+from conv import convnet_init, set_parameter_requires_grad
 import conv3d
 
 
@@ -67,6 +67,7 @@ class KissingDetector3DConv(nn.Module):
             sample_size=224,
             sample_duration=10
         )
+        set_parameter_requires_grad(conv, feature_extract)
         conv.fc = nn.Identity()
 
         if use_vggish:

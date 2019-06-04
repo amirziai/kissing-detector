@@ -6,8 +6,8 @@ import torch
 import torch.optim as optim
 from torch import nn
 
-from data import AudioVideo
-from kissing_detector import KissingDetector
+from data import AudioVideo, AudioVideo3D
+from kissing_detector import KissingDetector, KissingDetector3DConv
 
 ExperimentResults = Tuple[Optional[nn.Module], List[float], List[float]]
 
@@ -36,17 +36,23 @@ def train_kd(data_path_base: str,
              num_workers: int = 4,
              shuffle: bool = True,
              lr: float = 0.001,
-             momentum: float = 0.9) -> ExperimentResults:
+             momentum: float = 0.9,
+             use_3d: bool = False) -> ExperimentResults:
     num_classes = 2
     try:
-        kd = KissingDetector(conv_model_name, num_classes, feature_extract, use_vggish=use_vggish)
+        if use_3d:
+            kd = KissingDetector3DConv(num_classes, feature_extract, use_vggish)
+        else:
+            kd = KissingDetector(conv_model_name, num_classes, feature_extract, use_vggish=use_vggish)
     except ValueError:
         # if the combination is not valid
         return None, [-1.0], [-1.0]
 
     params_to_update = _get_params_to_update(kd, feature_extract)
 
-    datasets = {set_: AudioVideo(f'{data_path_base}/{set_}') for set_ in ['train', 'val']}
+    av = AudioVideo3D if use_3d else AudioVideo
+
+    datasets = {set_: av(f'{data_path_base}/{set_}') for set_ in ['train', 'val']}
     dataloaders_dict = {x: torch.utils.data.DataLoader(datasets[x],
                                                        batch_size=batch_size,
                                                        shuffle=shuffle, num_workers=num_workers)
