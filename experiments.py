@@ -44,6 +44,7 @@ class ExperimentRunner:
             log(uuid)
             experiment_results = unpickle(self._file_path_experiment_results(uuid))
         else:
+            log(f'Running uuid {uuid}')
             experiment_results = train_kd(**param_set)
             pickle_object(experiment_results, self._file_path_experiment_results(uuid))
 

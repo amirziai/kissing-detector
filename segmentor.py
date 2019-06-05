@@ -124,17 +124,22 @@ class Segmentor:
                 self.show_images_horizontally(segment_images[-n_to_show:])
                 print('=' * 10)
 
-    def visualize_segments_youtube(self,
-                                   youtube_id: str,
-                                   n_to_show: int = 10,
-                                   show_title: bool = True,
-                                   remove_file: bool = True):
+    @staticmethod
+    def _download_youtube_video(youtube_id: str, show_title: bool = True) -> str:
         yt = YouTube(f'http://youtube.com/watch?v={youtube_id}')
         if show_title:
             print(f'Title: {yt.title}')
         yt_stream = yt.streams.first()
         path = f'{yt_stream.default_filename}'
         yt_stream.download()
+        return path
+
+    def visualize_segments_youtube(self,
+                                   youtube_id: str,
+                                   n_to_show: int = 10,
+                                   show_title: bool = True,
+                                   remove_file: bool = True):
+        path = self._download_youtube_video(youtube_id, show_title)
         self.visualize_segments(path, n_to_show)
         if remove_file:
             os.remove(path)
