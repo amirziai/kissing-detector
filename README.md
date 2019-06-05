@@ -9,10 +9,10 @@ Use Python 3.6+
 python3 experiments.py
 ```
 
+this will run the experiments in `params.py` specified by the `experiments` dictionary.
+
 ## Requirements
 This is a PyTorch project. Look at `requirements.txt` for more details. 
-
-this will run the experiments in `params.py` specified by the `experiments` dictionary.
 
 ## Build dataset
 The following will build the dataset for training. You need to provide path to video segments.
