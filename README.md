@@ -2,7 +2,11 @@
 Detect kissing scenes in a movie using both audio and video features.
 
 Project for [Stanford CS231N](http://cs231n.stanford.edu)
+
+## Resources
+- [Paper](https://arxiv.org/abs/1906.01843)
 - [Poster](poster.pdf)
+- [Video](https://www.youtube.com/watch?v=3IIGLupGAkI)
 
 ## Running the code
 Use Python 3.6+
